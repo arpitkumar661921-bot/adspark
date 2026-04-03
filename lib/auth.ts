@@ -1,4 +1,3 @@
-import { PrismaAdapter } from "@auth/prisma-adapter";
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 import Email from "next-auth/providers/email";
@@ -30,15 +29,6 @@ if (env.EMAIL_SERVER && env.EMAIL_FROM) {
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  adapter: PrismaAdapter(prisma),
-  secret: env.NEXTAUTH_SECRET || "development-secret-key-change-in-production",
-  trustHost: !!process.env.NEXTAUTH_URL,
-  pages: {
-    signIn: "/login"
-  },
-  session: {
-    strategy: "database"
-  },
   providers: providers.length > 0 ? providers : [
     // Fallback provider for development when no OAuth credentials are set
     {
@@ -50,36 +40,47 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
       async authorize(credentials) {
         if (!credentials?.email) return null;
-        return {
-          id: Math.random().toString(36).substr(2, 9),
-          email: credentials.email,
-          name: credentials.email
-        };
-      }
-    }
-  ],
-  callbacks: {
-    async session({ session, user }) {
-      if (session.user) {
-        session.user.id = user.id;
-      }
-      return session;
-    }
-  },
-  events: {
-    async createUser({ user }) {
-      try {
-        await prisma.user.update({
-          where: { id: user.id! },
-          data: {
+        
+        // Create or get user in database
+        const user = await prisma.user.upsert({
+          where: { email: credentials.email },
+          update: {},
+          create: {
+            email: credentials.email,
+            name: credentials.email,
             plan: "free",
             credits: 5,
             lastCreditReset: new Date()
           }
         });
-      } catch (error) {
-        console.log("[v0] Error creating user:", error);
+        
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name
+        };
       }
+    }
+  ],
+  secret: env.NEXTAUTH_SECRET || "development-secret-key-change-in-production",
+  session: {
+    strategy: "jwt"
+  },
+  pages: {
+    signIn: "/login"
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+      }
+      return session;
     }
   }
 });
