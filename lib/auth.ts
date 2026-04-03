@@ -7,13 +7,19 @@ import { getEnv } from "@/lib/env";
 
 const env = getEnv();
 
-const providers = [
-  Google({
-    clientId: env.GOOGLE_CLIENT_ID,
-    clientSecret: env.GOOGLE_CLIENT_SECRET
-  })
-];
+const providers = [];
 
+// Only add Google provider if credentials are available
+if (env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET) {
+  providers.push(
+    Google({
+      clientId: env.GOOGLE_CLIENT_ID,
+      clientSecret: env.GOOGLE_CLIENT_SECRET
+    })
+  );
+}
+
+// Only add Email provider if configured
 if (env.EMAIL_SERVER && env.EMAIL_FROM) {
   providers.push(
     Email({
@@ -25,7 +31,7 @@ if (env.EMAIL_SERVER && env.EMAIL_FROM) {
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
-  secret: env.NEXTAUTH_SECRET,
+  secret: env.NEXTAUTH_SECRET || "development-secret-key",
   session: {
     strategy: "database"
   },

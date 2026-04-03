@@ -3,6 +3,7 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { generateAdsBundle } from "@/lib/ai";
+import { getEnv } from "@/lib/env";
 
 const bodySchema = z.object({
   input: z.string().min(3).max(4000),
@@ -15,6 +16,11 @@ function dayStartUTC() {
 }
 
 export async function POST(req: Request) {
+  const env = getEnv();
+  if (!env.OPENAI_API_KEY) {
+    return NextResponse.json({ error: "AI generation is not configured" }, { status: 503 });
+  }
+
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

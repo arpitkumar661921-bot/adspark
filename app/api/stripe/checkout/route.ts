@@ -6,6 +6,10 @@ import { prisma } from "@/lib/prisma";
 export const runtime = "nodejs";
 
 export async function POST() {
+  if (!stripe || !PRO_PLAN_PRICE_ID) {
+    return NextResponse.json({ error: "Stripe not configured" }, { status: 503 });
+  }
+
   const session = await auth();
   if (!session?.user?.id || !session.user.email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

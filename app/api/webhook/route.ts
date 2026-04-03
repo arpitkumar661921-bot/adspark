@@ -7,6 +7,10 @@ import { prisma } from "@/lib/prisma";
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
+  if (!stripe || !STRIPE_WEBHOOK_SECRET) {
+    return NextResponse.json({ error: "Stripe not configured" }, { status: 503 });
+  }
+
   const rawBody = await req.text();
   const sig = (await headers()).get("stripe-signature");
 
