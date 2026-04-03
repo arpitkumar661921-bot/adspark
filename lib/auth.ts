@@ -31,14 +31,33 @@ if (env.EMAIL_SERVER && env.EMAIL_FROM) {
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
-  secret: env.NEXTAUTH_SECRET,
+  secret: env.NEXTAUTH_SECRET || "development-secret-key-change-in-production",
+  trustHost: !!process.env.NEXTAUTH_URL,
   pages: {
     signIn: "/login"
   },
   session: {
     strategy: "database"
   },
-  providers,
+  providers: providers.length > 0 ? providers : [
+    // Fallback provider for development when no OAuth credentials are set
+    {
+      id: "demo",
+      name: "Demo Provider",
+      type: "credentials",
+      credentials: {
+        email: { label: "Email", type: "email" }
+      },
+      async authorize(credentials) {
+        if (!credentials?.email) return null;
+        return {
+          id: Math.random().toString(36).substr(2, 9),
+          email: credentials.email,
+          name: credentials.email
+        };
+      }
+    }
+  ],
   callbacks: {
     async session({ session, user }) {
       if (session.user) {
@@ -49,14 +68,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   events: {
     async createUser({ user }) {
-      await prisma.user.update({
-        where: { id: user.id! },
-        data: {
-          plan: "free",
-          credits: 5,
-          lastCreditReset: new Date()
-        }
-      });
+      try {
+        await prisma.user.update({
+          where: { id: user.id! },
+          data: {
+            plan: "free",
+            credits: 5,
+            lastCreditReset: new Date()
+          }
+        });
+      } catch (error) {
+        console.log("[v0] Error creating user:", error);
+      }
     }
   }
 });
