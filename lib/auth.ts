@@ -29,21 +29,16 @@ if (env.EMAIL_SERVER && env.EMAIL_FROM) {
   );
 }
 
-const nextAuthUrl = env.NEXTAUTH_URL || 
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
-
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
-  secret: env.NEXTAUTH_SECRET || "development-secret-key",
-  trustHost: true,
+  secret: env.NEXTAUTH_SECRET,
+  pages: {
+    signIn: "/login"
+  },
   session: {
     strategy: "database"
   },
   providers,
-  pages: {
-    signIn: "/login"
-  },
-  basePath: "/api/auth",
   callbacks: {
     async session({ session, user }) {
       if (session.user) {
