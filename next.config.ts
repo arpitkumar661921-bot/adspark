@@ -18,7 +18,13 @@ const nextConfig: NextConfig = {
         "*.vercel.run"
       ]
     }
-  }
+  },
+  allowedDevOrigins: [
+    "localhost:3000",
+    "*.vercel.app",
+    "*.vusercontent.net",
+    "*.vercel.run"
+  ]
 };
 
 export default nextConfig;
