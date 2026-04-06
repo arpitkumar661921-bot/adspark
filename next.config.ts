@@ -13,18 +13,11 @@ const nextConfig: NextConfig = {
     serverActions: {
       allowedOrigins: [
         "localhost:3000",
-        "*.vercel.app",
-        "*.vusercontent.net",
-        "*.vercel.run"
+        "localhost",
+        "*"
       ]
     }
-  },
-  allowedDevOrigins: [
-    "localhost:3000",
-    "*.vercel.app",
-    "*.vusercontent.net",
-    "*.vercel.run"
-  ]
+  }
 };
 
 export default nextConfig;
