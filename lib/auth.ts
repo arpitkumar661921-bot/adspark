@@ -1,5 +1,4 @@
 import NextAuth from "next-auth";
-import { prisma } from "@/lib/prisma";
 import { getEnv } from "@/lib/env";
 
 const env = getEnv();
@@ -16,23 +15,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       async authorize(credentials) {
         if (!credentials?.email) return null;
         
-        // Create or get user in database
-        const user = await prisma.user.upsert({
-          where: { email: credentials.email },
-          update: {},
-          create: {
-            email: credentials.email,
-            name: credentials.email,
-            plan: "free",
-            credits: 5,
-            lastCreditReset: new Date()
-          }
-        });
+        // Generate a consistent user ID from email
+        const userId = Buffer.from(credentials.email).toString("base64").substring(0, 24);
         
         return {
-          id: user.id,
-          email: user.email,
-          name: user.name
+          id: userId,
+          email: credentials.email,
+          name: credentials.email
         };
       }
     }
