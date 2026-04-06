@@ -8,6 +8,16 @@ const nextConfig: NextConfig = {
         hostname: "image.pollinations.ai"
       }
     ]
+  },
+  experimental: {
+    serverActions: {
+      allowedOrigins: [
+        "localhost:3000",
+        "*.vercel.app",
+        "*.vusercontent.net",
+        "*.vercel.run"
+      ]
+    }
   }
 };
 
