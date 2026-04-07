@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
 
 export default function LoginPage() {
@@ -34,23 +35,22 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const response = await fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
+      // Use next-auth signIn function
+      const result = await signIn("credentials", {
+        email: email,
+        redirect: false
       });
 
-      if (!response.ok) {
+      if (!result?.ok) {
         setError("Sign in failed. Please try again.");
         setLoading(false);
         return;
       }
 
-      const data = await response.json();
-      if (data.redirectUrl) {
-        router.push(data.redirectUrl);
-      }
+      // After successful sign in, redirect to dashboard
+      router.push("/dashboard");
     } catch (err) {
+      console.error("[v0] Sign in error:", err);
       setError("An error occurred. Please try again.");
       setLoading(false);
     }

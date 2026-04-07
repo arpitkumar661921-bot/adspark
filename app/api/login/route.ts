@@ -1,4 +1,3 @@
-import { signIn } from "@/lib/auth";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -9,9 +8,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
 
-    await signIn("credentials", { email, redirect: false });
-    
-    return NextResponse.json({ success: true, redirectUrl: "/dashboard" });
+    if (!email.includes("@")) {
+      return NextResponse.json({ error: "Invalid email address" }, { status: 400 });
+    }
+
+    // Return the auth callback URL that the client should post to
+    return NextResponse.json({ 
+      success: true, 
+      callbackUrl: `/api/auth/callback/credentials?email=${encodeURIComponent(email)}`
+    });
   } catch (error) {
     console.error("[v0] Login error:", error);
     return NextResponse.json({ error: "Sign in failed" }, { status: 500 });
