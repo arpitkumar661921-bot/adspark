@@ -10,33 +10,21 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    try {
-      // First, validate the email via the signup API
-      const signupResponse = await fetch("/api/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
-      });
-
-      if (!signupResponse.ok) {
-        const errorData = await signupResponse.json();
-        setError(errorData.error || "Sign up failed. Please try again.");
-        setLoading(false);
-        return;
-      }
-
-      // After successful signup validation, redirect to login to sign in
-      // The user will sign in on the next step
-      router.push(`/login?email=${encodeURIComponent(email)}&signup=true`);
-    } catch (err) {
-      setError("An error occurred. Please try again.");
-      setLoading(false);
+    
+    if (!email) {
+      setError("Please enter your email");
+      return;
     }
+
+    if (!email.includes("@")) {
+      setError("Please enter a valid email");
+      return;
+    }
+
+    // Redirect directly to login with email for auto-signin
+    window.location.href = `/login?email=${encodeURIComponent(email)}&signup=true`;
   };
 
   return (
