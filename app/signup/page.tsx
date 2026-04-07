@@ -16,22 +16,23 @@ export default function SignupPage() {
     setError("");
 
     try {
-      const response = await fetch("/api/signup", {
+      // First, validate the email via the signup API
+      const signupResponse = await fetch("/api/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email })
       });
 
-      if (!response.ok) {
-        setError("Sign up failed. Please try again.");
+      if (!signupResponse.ok) {
+        const errorData = await signupResponse.json();
+        setError(errorData.error || "Sign up failed. Please try again.");
         setLoading(false);
         return;
       }
 
-      const data = await response.json();
-      if (data.redirectUrl) {
-        router.push(data.redirectUrl);
-      }
+      // After successful signup validation, redirect to login to sign in
+      // The user will sign in on the next step
+      router.push(`/login?email=${encodeURIComponent(email)}&signup=true`);
     } catch (err) {
       setError("An error occurred. Please try again.");
       setLoading(false);

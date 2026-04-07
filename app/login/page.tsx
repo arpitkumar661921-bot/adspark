@@ -1,17 +1,42 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Auto-fill email and auto-submit if coming from signup
+  useEffect(() => {
+    const emailParam = searchParams.get("email");
+    const isSignup = searchParams.get("signup") === "true";
+    
+    if (emailParam) {
+      setEmail(decodeURIComponent(emailParam));
+      if (isSignup) {
+        // Auto-submit the login form after a short delay
+        setTimeout(() => {
+          handleSubmit(new Event("submit") as any);
+        }, 500);
+      }
+    }
+  }, [searchParams]);
+
+  const handleSubmit = async (e: any) => {
+    if (e?.preventDefault) {
+      e.preventDefault();
+    }
+    
+    if (!email) {
+      setError("Please enter your email");
+      return;
+    }
+    
     setLoading(true);
     setError("");
 
