@@ -23,8 +23,8 @@ export default function SignupPage() {
       return;
     }
 
-    // Redirect directly to login with email for auto-signin
-    window.location.href = `/login?email=${encodeURIComponent(email)}&signup=true`;
+    // Redirect to login with email
+    router.push(`/login?email=${encodeURIComponent(email)}`);
   };
 
   return (

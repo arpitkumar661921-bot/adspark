@@ -11,21 +11,14 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Auto-fill email and auto-submit if coming from signup
+  // Auto-fill email when coming from signup
   useEffect(() => {
     const emailParam = searchParams.get("email");
-    const isSignup = searchParams.get("signup") === "true";
     
     if (emailParam) {
       setEmail(decodeURIComponent(emailParam));
-      if (isSignup) {
-        // Auto-submit the login form after a short delay
-        setTimeout(() => {
-          handleSubmit(new Event("submit") as any);
-        }, 500);
-      }
     }
-  }, [searchParams]);
+  }, []);
 
   const handleSubmit = async (e: any) => {
     if (e?.preventDefault) {
