@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-export default function LoginPage() {
+export default function SignupPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -16,14 +16,14 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const response = await fetch("/api/login", {
+      const response = await fetch("/api/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email })
       });
 
       if (!response.ok) {
-        setError("Sign in failed. Please try again.");
+        setError("Sign up failed. Please try again.");
         setLoading(false);
         return;
       }
@@ -40,7 +40,8 @@ export default function LoginPage() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-6 px-6">
-      <h1 className="text-3xl font-bold">Login to AdSpark</h1>
+      <h1 className="text-3xl font-bold">Create Account</h1>
+      <p className="text-zinc-400">Join AdSpark to generate amazing ad content</p>
       
       <form onSubmit={handleSubmit} className="space-y-3">
         {error && <div className="rounded-lg bg-red-950 px-4 py-2 text-red-200">{error}</div>}
@@ -55,16 +56,16 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-lg border border-zinc-600 px-4 py-3 font-semibold disabled:opacity-50"
+          className="w-full rounded-lg bg-white px-4 py-3 font-semibold text-black disabled:opacity-50"
         >
-          {loading ? "Signing in..." : "Sign in with Email"}
+          {loading ? "Creating account..." : "Create Account"}
         </button>
       </form>
 
       <div className="text-center text-zinc-400">
-        Don&apos;t have an account?{" "}
-        <Link href="/signup" className="text-white underline">
-          Sign up
+        Already have an account?{" "}
+        <Link href="/login" className="text-white underline">
+          Sign in
         </Link>
       </div>
     </main>
