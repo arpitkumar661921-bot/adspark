@@ -3,17 +3,26 @@ import { getEnv } from "@/lib/env";
 
 const env = getEnv();
 
-// Suppress Auth.js CSRF warning logs for credentials provider
-const originalLog = console.error;
-console.error = (...args: any[]) => {
-  if (args[0]?.toString?.().includes?.("MissingCSRF")) {
-    return; // Silently ignore CSRF warnings for credentials provider
-  }
-  originalLog(...args);
-};
-
 export const { handlers, signIn, signOut, auth } = NextAuth({
   trustHost: true,
+  logger: {
+    error: (code, metadata) => {
+      // Suppress MissingCSRF warnings for credentials provider - they're harmless
+      // CSRF tokens only matter for OAuth flows, not credentials-based auth with JWT
+      if (code === "MissingCSRF") {
+        return;
+      }
+      console.error(`[auth][error] ${code}`, metadata);
+    },
+    warn: (code) => {
+      console.warn(`[auth][warn] ${code}`);
+    },
+    debug: (code, metadata) => {
+      if (process.env.DEBUG) {
+        console.log(`[auth][debug] ${code}`, metadata);
+      }
+    },
+  },
   providers: [
     {
       id: "credentials",
