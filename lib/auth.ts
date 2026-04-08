@@ -4,6 +4,7 @@ import { getEnv } from "@/lib/env";
 const env = getEnv();
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  trustHost: true,
   providers: [
     {
       id: "credentials",
