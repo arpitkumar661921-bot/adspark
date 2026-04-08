@@ -3,6 +3,15 @@ import { getEnv } from "@/lib/env";
 
 const env = getEnv();
 
+// Suppress Auth.js CSRF warning logs for credentials provider
+const originalLog = console.error;
+console.error = (...args: any[]) => {
+  if (args[0]?.toString?.().includes?.("MissingCSRF")) {
+    return; // Silently ignore CSRF warnings for credentials provider
+  }
+  originalLog(...args);
+};
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   trustHost: true,
   providers: [
