@@ -35,17 +35,22 @@ export default function LoginPage() {
     setError("");
 
     try {
-      // Use next-auth signIn function - always redirects on success
+      // Use next-auth signIn function with redirect: false
       const result = await signIn("credentials", {
         email: email,
-        redirect: true,
-        callbackUrl: "/dashboard"
+        redirect: false
       });
 
-      // If we get here and result exists, sign in failed
+      // Check if sign in was successful
       if (result?.error) {
         setError("Sign in failed. Please try again.");
         setLoading(false);
+        return;
+      }
+
+      if (result?.ok) {
+        // Sign in successful, redirect to dashboard
+        router.push("/dashboard");
       }
     } catch (err) {
       console.error("[v0] Sign in error:", err);
