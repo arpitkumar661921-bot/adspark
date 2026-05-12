@@ -41,16 +41,21 @@ export default function LoginPage() {
         redirect: false
       });
 
-      // Check if sign in was successful - no error means success
-      if (result?.error) {
+      console.log("[v0] signIn result:", result);
+
+      // Check if sign in was successful
+      if (!result || result.error) {
+        console.log("[v0] signin failed, error:", result?.error);
         setError("Sign in failed. Please try again.");
         setLoading(false);
         return;
       }
 
       // If we get here without an error, sign in was successful
+      console.log("[v0] signin successful, redirecting to dashboard");
       router.push("/dashboard");
     } catch (err) {
+      console.log("[v0] signin exception:", err);
       setError("An error occurred. Please try again.");
       setLoading(false);
     }
